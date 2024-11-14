@@ -41,6 +41,9 @@ import org.slf4j.LoggerFactory;
  */
 @NonNullByDefault
 public class PipedAudioStream extends AudioStream {
+    private static final String INTERRUPTED_IOEXCEPTION_LOG = "InterruptedIOException while writing to pipe: {}";
+    private static final String IOEXCEPTION_LOG = "IOException while writing to pipe: {}";
+    private static final String RUNTIME_EXCEPTION_LOG = "RuntimeException while writing to pipe: {}";
     private final AudioFormat format;
     private final PipedInputStream pipedInput;
     private final PipedOutputStream pipedOutput;
@@ -201,11 +204,11 @@ public class PipedAudioStream extends AudioStream {
                     try {
                         pipe.getOutputStream().write(b, off, len);
                     } catch (InterruptedIOException e) {
-                        logger.warn("InterruptedIOException while writing to pipe: {}", e.getMessage());
+                        logger.warn(INTERRUPTED_IOEXCEPTION_LOG, e.getMessage());
                     } catch (IOException e) {
-                        logger.warn("IOException while writing to pipe: {}", e.getMessage());
+                        logger.warn(IOEXCEPTION_LOG, e.getMessage());
                     } catch (RuntimeException e) {
-                        logger.warn("RuntimeException while writing to pipe: {}", e.getMessage());
+                        logger.warn(RUNTIME_EXCEPTION_LOG, e.getMessage());
                     }
                 }
             }
@@ -218,11 +221,11 @@ public class PipedAudioStream extends AudioStream {
                     try {
                         pipe.getOutputStream().write(b);
                     } catch (InterruptedIOException e) {
-                        logger.warn("InterruptedIOException while writing to pipe: {}", e.getMessage());
+                        logger.warn(INTERRUPTED_IOEXCEPTION_LOG, e.getMessage());
                     } catch (IOException e) {
-                        logger.warn("IOException while writing to pipe: {}", e.getMessage());
+                        logger.warn(IOEXCEPTION_LOG, e.getMessage());
                     } catch (RuntimeException e) {
-                        logger.warn("RuntimeException while writing to pipe: {}", e.getMessage());
+                        logger.warn(RUNTIME_EXCEPTION_LOG, e.getMessage());
                     }
                 }
             }
@@ -252,11 +255,11 @@ public class PipedAudioStream extends AudioStream {
                     try {
                         pipe.getOutputStream().flush();
                     } catch (InterruptedIOException e) {
-                        logger.warn("InterruptedIOException while writing to pipe: {}", e.getMessage());
+                        logger.warn(INTERRUPTED_IOEXCEPTION_LOG, e.getMessage());
                     } catch (IOException e) {
-                        logger.warn("IOException while writing to pipe: {}", e.getMessage());
+                        logger.warn(IOEXCEPTION_LOG, e.getMessage());
                     } catch (RuntimeException e) {
-                        logger.warn("RuntimeException while writing to pipe: {}", e.getMessage());
+                        logger.warn(RUNTIME_EXCEPTION_LOG, e.getMessage());
                     }
                 }
             }
