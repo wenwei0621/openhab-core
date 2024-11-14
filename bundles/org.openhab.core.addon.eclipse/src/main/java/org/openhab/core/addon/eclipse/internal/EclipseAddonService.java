@@ -93,7 +93,6 @@ public class EclipseAddonService implements AddonService {
 
     @Deactivate
     protected void deactivate() {
-            throw new UnsupportedOperationException("Deactivation of this service is not supported.");
     }
 
     @Override
@@ -108,7 +107,6 @@ public class EclipseAddonService implements AddonService {
 
     @Override
     public void refreshSource() {
-            throw new UnsupportedOperationException("refreshSource is not supported by EclipseAddonService.");
     }
 
     @Override
