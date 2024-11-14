@@ -91,8 +91,10 @@ public class UserRegistryImpl extends AbstractRegistry<User, String, UserProvide
 
     @Override
     public User register(String username, String password, Set<String> roles) {
-        String passwordSalt = generateSalt(KEY_LENGTH / 8).get();
-        String passwordHash = hash(password, passwordSalt, PASSWORD_ITERATIONS).get();
+        String passwordSalt = generateSalt(KEY_LENGTH / 8)
+                .orElseThrow(() -> new IllegalStateException("Unable to generate password salt"));
+        String passwordHash = hash(password, passwordSalt, PASSWORD_ITERATIONS)
+                .orElseThrow(() -> new IllegalStateException("Unable to hash password"));
         ManagedUser user = new ManagedUser(username, passwordSalt, passwordHash);
         user.setRoles(new HashSet<>(roles));
         super.add(user);
@@ -141,7 +143,8 @@ public class UserRegistryImpl extends AbstractRegistry<User, String, UserProvide
 
             ManagedUser managedUser = (ManagedUser) user;
             String hashedPassword = hash(usernamePasswordCreds.getPassword(), managedUser.getPasswordSalt(),
-                    PASSWORD_ITERATIONS).get();
+                    PASSWORD_ITERATIONS)
+                    .orElseThrow(() -> new AuthenticationException("Unable to hash password for authentication"));
             if (!hashedPassword.equals(managedUser.getPasswordHash())) {
                 throw new AuthenticationException("Wrong password for user " + usernamePasswordCreds.getUsername());
             }
@@ -161,7 +164,8 @@ public class UserRegistryImpl extends AbstractRegistry<User, String, UserProvide
                     }
                     String[] existingTokenHashAndSalt = userApiToken.getApiToken().split(":");
                     String incomingTokenHash = hash(apiTokenCreds.getApiToken(), existingTokenHashAndSalt[1],
-                            APITOKEN_ITERATIONS).get();
+                            APITOKEN_ITERATIONS)
+                            .orElseThrow(() -> new AuthenticationException("Unable to hash API token for verification"));
 
                     if (incomingTokenHash.equals(existingTokenHashAndSalt[0])) {
                         return new Authentication(managedUser.getName(),
@@ -183,8 +187,10 @@ public class UserRegistryImpl extends AbstractRegistry<User, String, UserProvide
         }
 
         ManagedUser managedUser = (ManagedUser) user;
-        String passwordSalt = generateSalt(KEY_LENGTH / 8).get();
-        String passwordHash = hash(newPassword, passwordSalt, PASSWORD_ITERATIONS).get();
+        String passwordSalt = generateSalt(KEY_LENGTH / 8)
+                .orElseThrow(() -> new IllegalStateException("Unable to generate password salt"));
+        String passwordHash = hash(newPassword, passwordSalt, PASSWORD_ITERATIONS)
+                .orElseThrow(() -> new IllegalStateException("Unable to hash new password"));
         managedUser.setPasswordSalt(passwordSalt);
         managedUser.setPasswordHash(passwordHash);
         update(user);
@@ -233,12 +239,14 @@ public class UserRegistryImpl extends AbstractRegistry<User, String, UserProvide
         }
 
         ManagedUser managedUser = (ManagedUser) user;
-        String tokenSalt = generateSalt(KEY_LENGTH / 8).get();
+        String tokenSalt = generateSalt(KEY_LENGTH / 8)
+                .orElseThrow(() -> new IllegalStateException("Unable to generate token salt"));
         byte[] rnd = new byte[64];
         RAND.nextBytes(rnd);
         String token = APITOKEN_PREFIX + "." + name + "."
                 + Base64.getEncoder().encodeToString(rnd).replaceAll("(\\+|/|=)", "");
-        String tokenHash = hash(token, tokenSalt, APITOKEN_ITERATIONS).get();
+        String tokenHash = hash(token, tokenSalt, APITOKEN_ITERATIONS)
+                .orElseThrow(() -> new IllegalStateException("Unable to hash token"));
 
         UserApiToken userApiToken = new UserApiToken(name, tokenHash + ":" + tokenSalt, scope);
 
