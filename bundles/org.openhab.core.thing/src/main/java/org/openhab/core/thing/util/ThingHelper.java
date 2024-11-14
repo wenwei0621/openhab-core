@@ -29,7 +29,6 @@ import org.openhab.core.thing.ThingUID;
 import org.openhab.core.thing.UID;
 import org.openhab.core.thing.binding.builder.BridgeBuilder;
 import org.openhab.core.thing.binding.builder.ThingBuilder;
-import org.openhab.core.thing.dto.ChannelDTO;
 import org.openhab.core.thing.dto.ChannelDTOMapper;
 import org.openhab.core.thing.dto.ThingDTO;
 import org.openhab.core.thing.internal.BridgeImpl;
@@ -150,73 +149,54 @@ public class ThingHelper {
      * @return A Thing instance, which is the result of the merge
      */
     public static Thing merge(Thing thing, ThingDTO updatedContents) {
-        ThingBuilder builder;
+        ThingBuilder builder = (thing instanceof Bridge)
+                ? BridgeBuilder.create(thing.getThingTypeUID(), thing.getUID())
+                : ThingBuilder.create(thing.getThingTypeUID(), thing.getUID());
 
-        if (thing instanceof Bridge) {
-            builder = BridgeBuilder.create(thing.getThingTypeUID(), thing.getUID());
-        } else {
-            builder = ThingBuilder.create(thing.getThingTypeUID(), thing.getUID());
-        }
-
-        // Update the label
-        if (updatedContents.label != null) {
-            builder.withLabel(updatedContents.label);
-        } else {
-            builder.withLabel(thing.getLabel());
-        }
-
-        // Update the location
-        if (updatedContents.location != null) {
-            builder.withLocation(updatedContents.location);
-        } else {
-            builder.withLocation(thing.getLocation());
-        }
-
-        // update bridge UID
-        if (updatedContents.bridgeUID != null) {
-            builder.withBridge(new ThingUID(updatedContents.bridgeUID));
-        } else {
-            builder.withBridge(thing.getBridgeUID());
-        }
-
-        // update thing configuration
-        if (updatedContents.configuration != null && !updatedContents.configuration.keySet().isEmpty()) {
-            builder.withConfiguration(new Configuration(updatedContents.configuration));
-        } else {
-            builder.withConfiguration(thing.getConfiguration());
-        }
-
-        // update thing properties
-        if (updatedContents.properties != null) {
-            builder.withProperties(updatedContents.properties);
-        } else {
-            builder.withProperties(thing.getProperties());
-        }
-
-        // Update the channels
-        if (updatedContents.channels != null) {
-            for (ChannelDTO channelDTO : updatedContents.channels) {
-                builder.withChannel(ChannelDTOMapper.map(channelDTO));
-            }
-        } else {
-            builder.withChannels(thing.getChannels());
-        }
-
-        if (updatedContents.location != null) {
-            builder.withLocation(updatedContents.location);
-        } else {
-            builder.withLocation(thing.getLocation());
-        }
+        // Update the content
+        setLabel(builder, thing, updatedContents);
+        setLocation(builder, thing, updatedContents);
+        setBridgeUID(builder, thing, updatedContents);
+        setConfiguration(builder, thing, updatedContents);
+        setProperties(builder, thing, updatedContents);
+        setChannels(builder, thing, updatedContents);
 
         Thing mergedThing = builder.build();
 
         // keep all child things in place on a merged bridge
         if (mergedThing instanceof BridgeImpl mergedBridge && thing instanceof Bridge bridge) {
-            for (Thing child : bridge.getThings()) {
-                mergedBridge.addThing(child);
-            }
+            bridge.getThings().forEach(mergedBridge::addThing);
         }
 
         return mergedThing;
+    }
+
+    private static void setLabel(ThingBuilder builder, Thing thing, ThingDTO dto) {
+        builder.withLabel(Objects.requireNonNullElse(dto.label, thing.getLabel()));
+    }
+
+    private static void setLocation(ThingBuilder builder, Thing thing, ThingDTO dto) {
+        builder.withLocation(Objects.requireNonNullElse(dto.location, thing.getLocation()));
+    }
+
+    private static void setBridgeUID(ThingBuilder builder, Thing thing, ThingDTO dto) {
+        builder.withBridge(dto.bridgeUID != null ? new ThingUID(dto.bridgeUID) : thing.getBridgeUID());
+    }
+
+    private static void setConfiguration(ThingBuilder builder, Thing thing, ThingDTO dto) {
+        builder.withConfiguration(dto.configuration != null && !dto.configuration.isEmpty()
+                ? new Configuration(dto.configuration) : thing.getConfiguration());
+    }
+
+    private static void setProperties(ThingBuilder builder, Thing thing, ThingDTO dto) {
+        builder.withProperties(Objects.requireNonNullElse(dto.properties, thing.getProperties()));
+    }
+
+    private static void setChannels(ThingBuilder builder, Thing thing, ThingDTO dto) {
+        if (dto.channels != null) {
+            dto.channels.forEach(channelDTO -> builder.withChannel(ChannelDTOMapper.map(channelDTO)));
+        } else {
+            builder.withChannels(thing.getChannels());
+        }
     }
 }
