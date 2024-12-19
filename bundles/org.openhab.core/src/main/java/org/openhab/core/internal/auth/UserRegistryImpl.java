@@ -91,8 +91,10 @@ public class UserRegistryImpl extends AbstractRegistry<User, String, UserProvide
 
     @Override
     public User register(String username, String password, Set<String> roles) {
-        String passwordSalt = generateSalt(KEY_LENGTH / 8).get();
-        String passwordHash = hash(password, passwordSalt, PASSWORD_ITERATIONS).get();
+        String passwordSalt = generateSalt(KEY_LENGTH / 8)
+                .orElseThrow(() -> new IllegalStateException("Unable to generate password salt"));
+        String passwordHash = hash(password, passwordSalt, PASSWORD_ITERATIONS)
+                .orElseThrow(() -> new IllegalStateException("Unable to hash password"));
         ManagedUser user = new ManagedUser(username, passwordSalt, passwordHash);
         user.setRoles(new HashSet<>(roles));
         super.add(user);
