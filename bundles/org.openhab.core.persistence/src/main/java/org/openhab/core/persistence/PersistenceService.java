@@ -73,13 +73,11 @@ public interface PersistenceService {
      */
     default void store(Item item, @Nullable String alias) {
         if (item == null) {
-            System.err.println("Error: Cannot store a null item.");
-            return;
+            throw new IllegalArgumentException("Error: Cannot store a null item.");
         }
         // Ensure that alias is valid
         if (alias != null && alias.isEmpty()) {
-            System.err.println("Error: Alias cannot be empty.");
-            return;
+            throw new IllegalArgumentException("Error: Alias cannot be empty.");
         }
 
     }
