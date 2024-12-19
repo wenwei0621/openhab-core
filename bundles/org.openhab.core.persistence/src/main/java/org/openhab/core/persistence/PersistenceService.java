@@ -71,7 +71,18 @@ public interface PersistenceService {
      * @param item the item which state should be persisted.
      * @param alias the alias under which the item should be persisted.
      */
-    void store(Item item, @Nullable String alias);
+    default void store(Item item, @Nullable String alias) {
+        if (item == null) {
+            System.err.println("Error: Cannot store a null item.");
+            return;
+        }
+        // Ensure that alias is valid
+        if (alias != null && alias.isEmpty()) {
+            System.err.println("Error: Alias cannot be empty.");
+            return;
+        }
+
+    }
 
     /**
      * Provides default persistence strategies that are used for all items if no user defined configuration is found.
