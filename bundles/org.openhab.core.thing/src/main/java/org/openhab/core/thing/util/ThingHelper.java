@@ -149,8 +149,7 @@ public class ThingHelper {
      * @return A Thing instance, which is the result of the merge
      */
     public static Thing merge(Thing thing, ThingDTO updatedContents) {
-        ThingBuilder builder = (thing instanceof Bridge)
-                ? BridgeBuilder.create(thing.getThingTypeUID(), thing.getUID())
+        ThingBuilder builder = (thing instanceof Bridge) ? BridgeBuilder.create(thing.getThingTypeUID(), thing.getUID())
                 : ThingBuilder.create(thing.getThingTypeUID(), thing.getUID());
 
         // Update the content
@@ -172,11 +171,11 @@ public class ThingHelper {
     }
 
     private static void setLabel(ThingBuilder builder, Thing thing, ThingDTO dto) {
-        builder.withLabel(Objects.requireNonNullElse(dto.label, thing.getLabel()));
+        builder.withLabel(dto.label != null ? dto.label : thing.getLabel());
     }
 
     private static void setLocation(ThingBuilder builder, Thing thing, ThingDTO dto) {
-        builder.withLocation(Objects.requireNonNullElse(dto.location, thing.getLocation()));
+        builder.withLocation(dto.location != null ? dto.location : thing.getLocation());
     }
 
     private static void setBridgeUID(ThingBuilder builder, Thing thing, ThingDTO dto) {
@@ -184,8 +183,9 @@ public class ThingHelper {
     }
 
     private static void setConfiguration(ThingBuilder builder, Thing thing, ThingDTO dto) {
-        builder.withConfiguration(dto.configuration != null && !dto.configuration.isEmpty()
-                ? new Configuration(dto.configuration) : thing.getConfiguration());
+        builder.withConfiguration(
+                dto.configuration != null && !dto.configuration.isEmpty() ? new Configuration(dto.configuration)
+                        : thing.getConfiguration());
     }
 
     private static void setProperties(ThingBuilder builder, Thing thing, ThingDTO dto) {
