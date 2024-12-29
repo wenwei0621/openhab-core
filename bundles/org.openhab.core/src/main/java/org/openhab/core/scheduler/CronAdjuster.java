@@ -78,10 +78,6 @@ public class CronAdjuster implements SchedulerTemporalAdjuster {
      * Constructs the class with a cron specification. containing variables and a cron expression at the last line.
      */
     public CronAdjuster(final String specification) {
-        if (specification.trim().isEmpty()) {
-            throw new IllegalArgumentException("Specification cannot be null or empty.");
-        }
-
         final String[] entries = specification.split("[\n\r]+");
         environmentMap = parseEnvironment(entries);
 
