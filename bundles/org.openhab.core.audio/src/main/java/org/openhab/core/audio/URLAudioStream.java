@@ -15,6 +15,8 @@ package org.openhab.core.audio;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
@@ -67,22 +69,45 @@ public class URLAudioStream extends AudioStream implements ClonableAudioStream {
         try {
             switch (extension) {
                 case M3U_EXTENSION:
-                    try (Scanner scanner = new Scanner(new URL(url).openStream(), StandardCharsets.UTF_8.name())) {
-                        while (true) {
-                            String line = scanner.nextLine();
+//                    try (Scanner scanner = new Scanner(new URL(url).openStream(), StandardCharsets.UTF_8.name())) {
+//                        while (true) {
+//                            String line = scanner.nextLine();
+//                            if (!line.isEmpty() && !line.startsWith("#")) {
+//                                url = line;
+//                                break;
+//                            }
+//                        }
+//                    }
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(new URL(url).openStream(), StandardCharsets.UTF_8))) {
+                        String line;
+                        while ((line = reader.readLine()) != null) {
                             if (!line.isEmpty() && !line.startsWith("#")) {
                                 url = line;
                                 break;
                             }
                         }
-                    } catch (NoSuchElementException e) {
+                    }
+                    catch (NoSuchElementException e) {
                         // we reached the end of the file, this exception is thus expected
                     }
                     break;
                 case PLS_EXTENSION:
-                    try (Scanner scanner = new Scanner(new URL(url).openStream(), StandardCharsets.UTF_8.name())) {
-                        while (true) {
-                            String line = scanner.nextLine();
+//                    try (Scanner scanner = new Scanner(new URL(url).openStream(), StandardCharsets.UTF_8.name())) {
+//                        while (true) {
+//                            String line = scanner.nextLine();
+//                            if (!line.isEmpty() && line.startsWith("File")) {
+//                                final Matcher matcher = PLS_STREAM_PATTERN.matcher(line);
+//                                if (matcher.find()) {
+//                                    url = matcher.group(1);
+//                                    break;
+//                                }
+//                            }
+//                        }
+//                    }
+
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(new URL(url).openStream(), StandardCharsets.UTF_8))) {
+                        String line;
+                        while ((line = reader.readLine()) != null) {
                             if (!line.isEmpty() && line.startsWith("File")) {
                                 final Matcher matcher = PLS_STREAM_PATTERN.matcher(line);
                                 if (matcher.find()) {
@@ -91,7 +116,8 @@ public class URLAudioStream extends AudioStream implements ClonableAudioStream {
                                 }
                             }
                         }
-                    } catch (NoSuchElementException e) {
+                    }
+                    catch (NoSuchElementException e) {
                         // we reached the end of the file, this exception is thus expected
                     }
                     break;

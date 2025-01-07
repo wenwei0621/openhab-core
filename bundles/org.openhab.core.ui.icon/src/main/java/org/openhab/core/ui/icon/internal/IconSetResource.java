@@ -95,7 +95,11 @@ public class IconSetResource implements RESTResource {
             @HeaderParam("Accept-Language") @Parameter(description = "language") @Nullable String language) {
         Locale locale = localeService.getLocale(language);
 
-        List<IconSet> iconSets = new ArrayList<>(iconProviders.size());
+//        List<IconSet> iconSets = new ArrayList<>(iconProviders.size());
+        // Optimize list initialization by specifying initial capacity
+        List<IconSet> iconSets = new ArrayList<>(iconProviders.stream()
+                .mapToInt(iconProvider -> iconProvider.getIconSets(locale).size()) // Estimate total number of icon sets
+                .sum());
         for (IconProvider iconProvider : iconProviders) {
             iconSets.addAll(iconProvider.getIconSets(locale));
         }
