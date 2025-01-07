@@ -101,7 +101,7 @@ public class UserRegistryImpl extends AbstractRegistry<User, String, UserProvide
         return user;
     }
 
-    private Optional<String> generateSalt(final int length) {
+    Optional<String> generateSalt(final int length) {
         if (length < 1) {
             logger.error("error in generateSalt: length must be > 0");
             return Optional.empty();
@@ -113,7 +113,7 @@ public class UserRegistryImpl extends AbstractRegistry<User, String, UserProvide
         return Optional.of(Base64.getEncoder().encodeToString(salt));
     }
 
-    private Optional<String> hash(String password, String salt, int iterations) {
+    Optional<String> hash(String password, String salt, int iterations) {
         char[] chars = password.toCharArray();
         byte[] bytes = salt.getBytes();
 
