@@ -17,6 +17,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -124,5 +125,50 @@ public class UserRegistryImplTest {
         registry.removeUserApiToken(user,
                 user.getApiTokens().stream().filter(t -> "token3".equals(t.getName())).findAny().get());
         assertEquals(0, user.getApiTokens().size());
+    }
+
+    @Test
+    public void testRegisterUserWithValidPasswordAndSalt() {
+        String username = "newUser";
+        String password = "newPassword";
+        Set<String> roles = Set.of("user", "admin");
+
+        User user = registry.register(username, password, roles);
+
+        assertNotNull(user);
+        assertEquals(username, user.getName());
+
+        assertTrue(user instanceof ManagedUser);
+        ManagedUser managedUser = (ManagedUser) user;
+
+        // Ensure passwordSalt and passwordHash are not null
+        assertNotNull(managedUser.getPasswordSalt(), "Password salt should not be null");
+        assertNotNull(managedUser.getPasswordHash(), "Password hash should not be null");
+    }
+
+    @Test
+    public void testRegisterUserWithNullPasswordSalt() {
+        UserRegistryImpl spyRegistry = spy(registry);
+        doReturn(Optional.empty()).when(spyRegistry).generateSalt(anyInt());
+
+        try {
+            User user = spyRegistry.register("newUser", "newPassword", Set.of("user"));
+            fail("Expected IllegalStateException due to null salt");
+        } catch (IllegalStateException e) {
+            assertEquals("Unable to generate password salt", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testRegisterUserWithNullPasswordHash() {
+        UserRegistryImpl spyRegistry = spy(registry);
+        doReturn(Optional.empty()).when(spyRegistry).hash(anyString(), anyString(), anyInt());
+
+        try {
+            User user = spyRegistry.register("newUser", "newPassword", Set.of("user"));
+            fail("Expected IllegalStateException due to null hash");
+        } catch (IllegalStateException e) {
+            assertEquals("Unable to hash password", e.getMessage());
+        }
     }
 }
