@@ -164,8 +164,8 @@ public class UserRegistryImpl extends AbstractRegistry<User, String, UserProvide
                     }
                     String[] existingTokenHashAndSalt = userApiToken.getApiToken().split(":");
                     String incomingTokenHash = hash(apiTokenCreds.getApiToken(), existingTokenHashAndSalt[1],
-                            APITOKEN_ITERATIONS)
-                            .orElseThrow(() -> new AuthenticationException("Unable to hash API token for verification"));
+                            APITOKEN_ITERATIONS).orElseThrow(
+                                    () -> new AuthenticationException("Unable to hash API token for verification"));
 
                     if (incomingTokenHash.equals(existingTokenHashAndSalt[0])) {
                         return new Authentication(managedUser.getName(),

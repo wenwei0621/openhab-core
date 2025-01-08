@@ -43,12 +43,12 @@ class AddonInfoXmlProviderTest {
     /**
      * Test the constructor with null parameters. Compile error will throw
      */
-//    @Test
-//    void testConstructor_withValidParameters2() {
-//        // Act: Create the AddonInfoXmlProvider with mocked dependencies
-//        addonInfoXmlProvider = new AddonInfoXmlProvider(null, addonInfoProvider, configDescriptionProvider);
-//
-//        // Assert: Ensure the provider is not null after construction
-//        assertNotNull(addonInfoXmlProvider);
-//    }
+    // @Test
+    // void testConstructor_withValidParameters2() {
+    // // Act: Create the AddonInfoXmlProvider with mocked dependencies
+    // addonInfoXmlProvider = new AddonInfoXmlProvider(null, addonInfoProvider, configDescriptionProvider);
+    //
+    // // Assert: Ensure the provider is not null after construction
+    // assertNotNull(addonInfoXmlProvider);
+    // }
 }

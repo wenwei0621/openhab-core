@@ -79,7 +79,6 @@ public interface PersistenceService {
         if (alias != null && alias.isEmpty()) {
             throw new IllegalArgumentException("Error: Alias cannot be empty.");
         }
-
     }
 
     /**
